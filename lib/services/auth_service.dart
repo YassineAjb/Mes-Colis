@@ -5,16 +5,16 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:mescolis/models/user_model.dart';
 
 class AuthService {
-  static const String _baseUrl = 'https://api-staging.mescolis.tn/api'; 
+  static const String _baseUrl = 'https://api-staging.mescolis.tn/api';
   static const String _tokenKey = 'auth_token';
   static const String _userKey = 'user_data';
   
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
-  Future<bool> login(String username, String password) async {
+  Future<Map<String, dynamic>> login(String username, String password) async {
     try {
       final response = await http.post(
-        Uri.parse('$_baseUrl/login'),
+        Uri.parse('$_baseUrl/user/login'), // Fixed endpoint URL
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'username': username,
@@ -23,25 +23,44 @@ class AuthService {
       );
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        final token = data['token'];
-        final user = User.fromJson(data['user']);
-        
-        await _storage.write(key: _tokenKey, value: token);
-        await _storage.write(key: _userKey, value: jsonEncode(user.toJson()));
-        
-        return true;
+        final result = jsonDecode(response.body);
+        print("----- login ---------- result = jsonDecode(response.body) ----------------------");
+        print(result);
+        if (result['success'] == true) {
+          // Store token and user data
+          final token = result['token'];
+          final user = User.fromJson(result['user']);
+          
+          await _storage.write(key: _tokenKey, value: token);
+          await _storage.write(key: _userKey, value: jsonEncode(user.toJson()));
+          
+          return {
+            'status': 'success',
+            'data': result,
+          };
+        } else {
+          // API returned success: false (incorrect credentials)
+          return {
+            'status': 'error',
+            'message': result['message'] ?? 'identifiant et/ou mot de passe invalides',
+          };
+        }
       } else {
-        throw Exception('Login failed');
+        // Database error or other server issues
+        return {
+          'status': 'error',
+          'message': 'Erreur , Veuillez réessayer !',
+        };
       }
     } catch (e) {
-      throw Exception('Network error: $e');
+      // Network error or other exceptions
+      return {
+        'status': 'error',
+        'message': 'Erreur , Veuillez réessayer !',
+      };
     }
   }
 
-
-
-//------------------
   Future<void> logout() async {
     await _storage.delete(key: _tokenKey);
     await _storage.delete(key: _userKey);
@@ -64,3 +83,4 @@ class AuthService {
     return token != null;
   }
 }
+

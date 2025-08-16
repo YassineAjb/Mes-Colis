@@ -3,9 +3,72 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:mescolis/models/package_model.dart';
 import 'package:mescolis/models/dashboard_stats.dart';
+import 'package:mescolis/services/auth_service.dart';
 
 class PackageService {
-  static const String _baseUrl = 'https://api.mescolis.com'; // Replace with actual API URL
+  static const String _baseUrl = 'https://api-staging.mescolis.tn/api';
+  final AuthService _authService;
+
+  // Constructor - inject AuthService dependency
+  PackageService(this._authService);
+
+  Future<Map<String, dynamic>> getProgressOrder({String metaKey = ""}) async {
+    try {
+      final token = await _authService.getToken();
+      final currentUser = await _authService.getCurrentUser();
+      
+      if (token == null || currentUser == null) {
+        return {
+          'status': 'error',
+          'message': 'User not authenticated',
+        };
+      }
+
+      print("----- getProgressOrder ---------- Request ----------------------");
+      print("Token: $token");
+      print("User ID: ${currentUser.id}");
+      print("Meta Key: $metaKey");
+
+      final response = await http.post(
+        Uri.parse('$_baseUrl/order/progressOrder'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({
+          'deliveryman_id': currentUser.id,
+          'meta_key': metaKey,
+        }),
+      );
+
+      print("Response Status Code: ${response.statusCode}");
+      print("Response Body: ${response.body}");
+
+      if (response.statusCode == 200) {
+        final result = jsonDecode(response.body);
+        print("----- getProgressOrder ---------- result = jsonDecode(response.body) ----------------------");
+        print(result);
+        return {
+          'status': 'success',
+          'data': result,
+        };
+      } else {
+        return {
+          'status': 'error',
+          'message': 'Erreur , Veuillez réessayer !',
+        };
+      }
+    } catch (e) {
+      print("getProgressOrder error: $e");
+      return {
+        'status': 'error',
+        'message': 'Erreur , Veuillez réessayer !',
+      };
+    }
+  }
+
+
+
 
   Future<List<Package>> getPackages(String token) async {
     try {
@@ -75,4 +138,6 @@ class PackageService {
       throw Exception('Network error: $e');
     }
   }
+
+
 }
