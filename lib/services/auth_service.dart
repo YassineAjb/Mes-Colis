@@ -5,7 +5,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:mescolis/models/user_model.dart';
 
 class AuthService {
-  static const String _baseUrl = 'https://api.mescolis.com'; // Replace with actual API URL
+  static const String _baseUrl = 'https://api-staging.mescolis.tn/api'; 
   static const String _tokenKey = 'auth_token';
   static const String _userKey = 'user_data';
   
@@ -39,6 +39,9 @@ class AuthService {
     }
   }
 
+
+
+//------------------
   Future<void> logout() async {
     await _storage.delete(key: _tokenKey);
     await _storage.delete(key: _userKey);

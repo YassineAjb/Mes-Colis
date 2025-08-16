@@ -6,6 +6,7 @@ import 'package:mescolis/viewmodels/dashboard_viewmodel.dart';
 import 'package:mescolis/viewmodels/package_viewmodel.dart';
 import 'package:mescolis/views/login_view.dart';
 import 'package:mescolis/views/dashboard_view.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 // Import mock services for testing
 import 'package:mescolis/services/mock_auth_service.dart';
@@ -15,7 +16,12 @@ import 'package:mescolis/services/mock_package_service.dart';
 // import 'package:mescolis/services/auth_service.dart';
 // import 'package:mescolis/services/package_service.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize the French locale
+  await initializeDateFormatting('fr');
+
   runApp(const MesColisApp());
 }
 
@@ -63,6 +69,7 @@ class MesColisApp extends StatelessWidget {
       ],
       child: MaterialApp(
         title: 'MesColis',
+        debugShowCheckedModeBanner: false,
         theme: ThemeData(
           primarySwatch: Colors.blue,
           visualDensity: VisualDensity.adaptivePlatformDensity,
