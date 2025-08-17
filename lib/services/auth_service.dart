@@ -14,7 +14,7 @@ class AuthService {
   Future<Map<String, dynamic>> login(String username, String password) async {
     try {
       final response = await http.post(
-        Uri.parse('$_baseUrl/user/login'), // Fixed endpoint URL
+        Uri.parse('$_baseUrl/user/login'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'username': username,
@@ -22,10 +22,13 @@ class AuthService {
         }),
       );
 
+        print("----- login ---------- result = jsonDecode(response.body) ----------------------");
+        print("status ${response.statusCode}");
+        print(jsonDecode(response.body));
+
       if (response.statusCode == 200) {
         final result = jsonDecode(response.body);
-        print("----- login ---------- result = jsonDecode(response.body) ----------------------");
-        print(result);
+        
         if (result['success'] == true) {
           // Store token and user data
           final token = result['token'];
@@ -33,6 +36,11 @@ class AuthService {
           
           await _storage.write(key: _tokenKey, value: token);
           await _storage.write(key: _userKey, value: jsonEncode(user.toJson()));
+          
+          print("----- Stored user data ----------------------");
+          print("User ID: ${user.userId}");
+          print("Agency ID: ${user.agencyId}");
+          print("Username: ${user.username}");
           
           return {
             'status': 'success',
@@ -53,6 +61,7 @@ class AuthService {
         };
       }
     } catch (e) {
+      print("Error in login: $e");
       // Network error or other exceptions
       return {
         'status': 'error',
@@ -71,16 +80,22 @@ class AuthService {
   }
 
   Future<User?> getCurrentUser() async {
-    final userJson = await _storage.read(key: _userKey);
-    if (userJson != null) {
-      return User.fromJson(jsonDecode(userJson));
+    try {
+      final userJson = await _storage.read(key: _userKey);
+      if (userJson != null) {
+        final userData = jsonDecode(userJson);
+        return User.fromJson(userData);
+      }
+      return null;
+    } catch (e) {
+      print("Error getting current user: $e");
+      return null;
     }
-    return null;
   }
 
   Future<bool> isLoggedIn() async {
     final token = await getToken();
-    return token != null;
+    final user = await getCurrentUser();
+    return token != null && user != null;
   }
 }
-
