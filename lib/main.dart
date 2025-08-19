@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:mescolis/services/api_service.dart.dart';
 import 'package:mescolis/services/runsheet_service.dart.dart';
-import 'package:mescolis/viewmodels/dashboard_viewmodel.dart';
+import 'package:mescolis/viewmodels/runsheet_view_model.dart';
 import 'package:provider/provider.dart';
 import 'package:mescolis/services/auth_service.dart';
 import 'package:mescolis/services/order_service.dart';

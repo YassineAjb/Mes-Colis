@@ -1,6 +1,6 @@
 // lib/services/car_service.dart
 import 'dart:convert';
-import 'package:mescolis/models/user_model.dart';
+import 'package:mescolis/models/car_model.dart';
 import 'package:mescolis/services/api_service.dart.dart';
 import 'package:mescolis/services/auth_service.dart';
 
