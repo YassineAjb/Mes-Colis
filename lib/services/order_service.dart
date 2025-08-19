@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:mescolis/models/order_model.dart';
 import 'package:mescolis/services/api_service.dart.dart';
 import 'package:mescolis/services/auth_service.dart';
+import 'dart:math' as math;
 
 class OrderService {
   final ApiService _apiService;
@@ -60,45 +61,58 @@ class OrderService {
     }
   }
 
-  Future<Map<String, dynamic>> getOrderByBarcode(String barcode) async {
-    try {
-      final response = await _apiService.post('/order/getOrderByBarCode', {
-        'barcode': barcode,
-        'console_type': 'to-be-picked_up',
-      });
-
-      print("----- getOrderByBarcode ---------- result = jsonDecode(response.body) ----------------------");
-      print("getOrderByBarcode ${response.statusCode}");
-      print(jsonDecode(response.body));
-
-      if (response.statusCode == 200) {
+Future<Map<String, dynamic>> getOrderByBarcode(String barcode) async {
+  try {
+    final response = await _apiService.post('/order/getOrderByBarCode', {
+      'barcode': barcode,
+      'console_type': 'to-be-picked_up',
+    });
+    
+    print('Response status: ${response.statusCode}');
+    print('Response length: ${response.body.length}');
+    print('Response body: ${response.body}');
+    
+    if (response.statusCode == 200) {
+      try {
         final result = jsonDecode(response.body);
+        print('JSON decode successful');
+        
         if (result['success'] == true) {
-          final order = Order.fromJson(result['data']);
-          return {
-            'status': 'success',
-            'order': order,
-          };
+          // Check if the response structure matches what you expect
+          if (result['order'] != null) {
+            return {'status': 'success', 'order': result['order']};
+          } else if (result['data'] != null) {
+            // In case the API returns 'data' instead of 'order'
+            return {'status': 'success', 'order': result['data']};
+          } else {
+            return {'status': 'error', 'message': 'Order data not found in response'};
+          }
         } else {
           return {
-            'status': 'error',
-            'message': result['message'] ?? 'Order not found',
+            'status': 'error', 
+            'message': result['message'] ?? 'Order not found'
           };
         }
-      } else {
-        return {
-          'status': 'error',
-          'message': 'Erreur , Veuillez réessayer !',
-        };
+      } catch (jsonError) {
+        print('JSON decode error: $jsonError');
+        print('Response body (first 500 chars): ${response.body.substring(0, math.min(500, response.body.length))}');
+        return {'status': 'error', 'message': 'Invalid response format'};
       }
-    } catch (e) {
-      print("Error in getOrderByBarcode: $e");
+    } else {
+      print('HTTP Error: ${response.statusCode}');
       return {
         'status': 'error',
-        'message': 'Erreur , Veuillez réessayer !',
+        'message': 'Server error: ${response.statusCode}',
       };
     }
+  } catch (e) {
+    print('API Error: $e');
+    return {
+      'status': 'error',
+      'message': 'Network error: ${e.toString()}',
+    };
   }
+}
 
   Future<Map<String, dynamic>> submitScannedOrders(List<int> orderIds) async {
     try {

@@ -2,9 +2,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mescolis/viewmodels/dashboard_viewmodel.dart';
+import 'package:mescolis/views/barcodescanner_page.dart';
 import 'package:provider/provider.dart';
 import 'package:mescolis/viewmodels/order_viewmodel.dart';
-import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 
 class PickupOrdersView extends StatefulWidget {
   const PickupOrdersView({Key? key}) : super(key: key);
@@ -450,124 +450,49 @@ class _PickupOrdersViewState extends State<PickupOrdersView> {
 
   Future<void> _openBarcodeScanner(BuildContext context, OrderViewModel orderViewModel) async {
     try {
-      // Check if scanner is available (basic check)
-      if (!mounted) return;
-
-      // Show scanning indicator
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (BuildContext context) {
-          return const Center(
-            child: Card(
-              child: Padding(
-                padding: EdgeInsets.all(20),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    CircularProgressIndicator(),
-                    SizedBox(height: 16),
-                    Text('Ouverture du scanner...'),
-                  ],
-                ),
-              ),
-            ),
-          );
-        },
-      );
-
-      // Start barcode scanning with error handling
-      String barcodeScanRes;
-      try {
-        barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
-          '#ff6666', // Color for the scan button
-          'Annuler', // Cancel button text
-          true, // Show flash icon
-          ScanMode.BARCODE, // Scan mode
-        );
-      } on MissingPluginException catch (e) {
-        // Close loading dialog
-        if (mounted) Navigator.of(context).pop();
-        
-        if (mounted) {
-          print('Plugin non configuré: $e');
-          _showErrorDialog(
-            context,
-            'Scanner non disponible',
-            'Le scanner de codes-barres n\'est pas disponible. Veuillez utiliser la saisie manuelle.',
-          );
-        }
-        return;
-      }
-
-      // Close loading dialog
-      if (mounted) Navigator.of(context).pop();
-
-      // Process result
-      if (barcodeScanRes != '-1' && barcodeScanRes.isNotEmpty && mounted) {
-        _barcodeController.text = barcodeScanRes;
-        await _processBarcode(context, orderViewModel, barcodeScanRes);
-      }
-    } on PlatformException catch (e) {
-      // Close loading dialog if still open
-      if (mounted) Navigator.of(context).pop();
-      
-      if (mounted) {
-        print('Erreur de plateforme: ${e.message}');
-        _showErrorDialog(
-          context, 
-          'Erreur du scanner',
-          'Impossible d\'ouvrir le scanner: ${e.message ?? "Erreur inconnue"}',
-        );
-      }
-    } catch (e) {
-      // Close loading dialog if still open
-      if (mounted) Navigator.of(context).pop();
-      
-      if (mounted) {
-        print('Erreur générale du scanner: $e');
-        _showErrorDialog(
-          context,
-          'Erreur',
-          'Scanner non disponible. Veuillez utiliser la saisie manuelle.',
-        );
-      }
-    }
-  }
-
-  Future<void> _processBarcode(BuildContext context, OrderViewModel orderViewModel, String barcode) async {
-    final trimmedBarcode = barcode.trim();
-    if (trimmedBarcode.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Row(
-            children: [
-              Icon(Icons.warning, color: Colors.white),
-              SizedBox(width: 12),
-              Text('Veuillez saisir un code-barres valide'),
-            ],
-          ),
-          backgroundColor: Colors.orange[600],
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      // Navigate to scanner page
+      final result = await Navigator.of(context).push<String>(
+        MaterialPageRoute(
+          builder: (context) => const BarcodeScannerPage(),
         ),
       );
-      return;
+
+      // Process result
+      if (result != null && result.isNotEmpty && mounted) {
+        _barcodeController.text = result;
+        await _processBarcode(context, orderViewModel, result);
+      }
+    } catch (e) {
+      if (mounted) {
+        print('Erreur du scanner: $e');
+        _showErrorDialog(
+          context,
+          'Erreur du scanner',
+          'Le scanner n\'est pas disponible sur cet appareil. Veuillez utiliser la saisie manuelle.',
+        );
+      }
     }
-
-    // Haptic feedback for scan attempt
-    HapticFeedback.lightImpact();
-
-    final success = await orderViewModel.scanOrder(trimmedBarcode);
-    if (success && mounted) {
-      _barcodeController.clear();
-      // Refocus on input field for next scan
-      _barcodeFocusNode.requestFocus();
-    }
-
-    // The success/error messages are now handled by the OrderViewModel
-    // and will be displayed in the UI through the error/success message containers
   }
+
+Future<void> _processBarcode(BuildContext context, OrderViewModel orderViewModel, String barcode) async {
+  final trimmedBarcode = barcode.trim();
+  if (trimmedBarcode.isEmpty) {
+    // ... existing code
+    return;
+  }
+
+  print('Processing barcode: $trimmedBarcode'); // DEBUG
+  HapticFeedback.lightImpact();
+
+  final success = await orderViewModel.scanOrder(trimmedBarcode);
+  print('Scan result: $success'); // DEBUG
+  print('Scanned orders count: ${orderViewModel.scannedOrders.length}'); // DEBUG
+  
+  if (success && mounted) {
+    _barcodeController.clear();
+    _barcodeFocusNode.requestFocus();
+  }
+}
 
   void _showErrorDialog(BuildContext context, String title, String message) {
     showDialog(
@@ -711,352 +636,3 @@ class _PickupOrdersViewState extends State<PickupOrdersView> {
   }
 }
 
-
-
-// // lib/views/pickup_orders_view.dart
-// import 'package:flutter/material.dart';
-// import 'package:mescolis/viewmodels/dashboard_viewmodel.dart';
-// import 'package:provider/provider.dart';
-// import 'package:mescolis/viewmodels/order_viewmodel.dart';
-
-// class PickupOrdersView extends StatefulWidget {
-//   const PickupOrdersView({Key? key}) : super(key: key);
-
-//   @override
-//   State<PickupOrdersView> createState() => _PickupOrdersViewState();
-// }
-
-// class _PickupOrdersViewState extends State<PickupOrdersView> {
-//   final TextEditingController _barcodeController = TextEditingController();
-
-//   @override
-//   void dispose() {
-//     _barcodeController.dispose();
-//     super.dispose();
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: const Text('Ramassage commandes'),
-//         backgroundColor: Colors.purple[600],
-//         foregroundColor: Colors.white,
-//       ),
-//       body: Consumer<OrderViewModel>(
-//         builder: (context, orderViewModel, child) {
-//           return Column(
-//             children: [
-//               // Scanner Section
-//               Container(
-//                 padding: const EdgeInsets.all(16),
-//                 decoration: BoxDecoration(
-//                   color: Colors.purple[50],
-//                   borderRadius: const BorderRadius.only(
-//                     bottomLeft: Radius.circular(16),
-//                     bottomRight: Radius.circular(16),
-//                   ),
-//                 ),
-//                 child: Column(
-//                   children: [
-//                     TextField(
-//                       controller: _barcodeController,
-//                       decoration: const InputDecoration(
-//                         labelText: 'Code-barres',
-//                         hintText: 'Scannez ou saisissez le code-barres',
-//                         prefixIcon: Icon(Icons.qr_code),
-//                         border: OutlineInputBorder(),
-//                       ),
-//                       onSubmitted: (value) => _scanBarcode(context, orderViewModel),
-//                     ),
-//                     const SizedBox(height: 12),
-//                     Row(
-//                       children: [
-//                         Expanded(
-//                           child: ElevatedButton.icon(
-//                             onPressed: () => _openBarcodeScanner(context),
-//                             icon: const Icon(Icons.qr_code_scanner),
-//                             label: const Text('Scanner'),
-//                             style: ElevatedButton.styleFrom(
-//                               backgroundColor: Colors.purple[600],
-//                               foregroundColor: Colors.white,
-//                             ),
-//                           ),
-//                         ),
-//                         const SizedBox(width: 12),
-//                         Expanded(
-//                           child: ElevatedButton.icon(
-//                             onPressed: () => _scanBarcode(context, orderViewModel),
-//                             icon: const Icon(Icons.add),
-//                             label: const Text('Ajouter'),
-//                             style: ElevatedButton.styleFrom(
-//                               backgroundColor: Colors.green[600],
-//                               foregroundColor: Colors.white,
-//                             ),
-//                           ),
-//                         ),
-//                       ],
-//                     ),
-//                   ],
-//                 ),
-//               ),
-
-//               // Messages
-//               if (orderViewModel.errorMessage != null)
-//                 Container(
-//                   width: double.infinity,
-//                   padding: const EdgeInsets.all(16),
-//                   margin: const EdgeInsets.all(16),
-//                   decoration: BoxDecoration(
-//                     color: Colors.red[50],
-//                     border: Border.all(color: Colors.red[300]!),
-//                     borderRadius: BorderRadius.circular(8),
-//                   ),
-//                   child: Row(
-//                     children: [
-//                       Icon(Icons.error, color: Colors.red[600]),
-//                       const SizedBox(width: 12),
-//                       Expanded(
-//                         child: Text(
-//                           orderViewModel.errorMessage!,
-//                           style: TextStyle(color: Colors.red[600]),
-//                         ),
-//                       ),
-//                       IconButton(
-//                         icon: const Icon(Icons.close),
-//                         onPressed: () => orderViewModel.clearMessages(),
-//                       ),
-//                     ],
-//                   ),
-//                 ),
-
-//               if (orderViewModel.successMessage != null)
-//                 Container(
-//                   width: double.infinity,
-//                   padding: const EdgeInsets.all(16),
-//                   margin: const EdgeInsets.all(16),
-//                   decoration: BoxDecoration(
-//                     color: Colors.green[50],
-//                     border: Border.all(color: Colors.green[300]!),
-//                     borderRadius: BorderRadius.circular(8),
-//                   ),
-//                   child: Row(
-//                     children: [
-//                       Icon(Icons.check_circle, color: Colors.green[600]),
-//                       const SizedBox(width: 12),
-//                       Expanded(
-//                         child: Text(
-//                           orderViewModel.successMessage!,
-//                           style: TextStyle(color: Colors.green[600]),
-//                         ),
-//                       ),
-//                       IconButton(
-//                         icon: const Icon(Icons.close),
-//                         onPressed: () => orderViewModel.clearMessages(),
-//                       ),
-//                     ],
-//                   ),
-//                 ),
-
-//               // Scanned Orders List
-//               Expanded(
-//                 child: Column(
-//                   children: [
-//                     Padding(
-//                       padding: const EdgeInsets.all(16),
-//                       child: Row(
-//                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                         children: [
-//                           Text(
-//                             'Commandes scannées (${orderViewModel.scannedOrders.length})',
-//                             style: const TextStyle(
-//                               fontSize: 18,
-//                               fontWeight: FontWeight.bold,
-//                             ),
-//                           ),
-//                           if (orderViewModel.scannedOrders.isNotEmpty)
-//                             TextButton(
-//                               onPressed: () => orderViewModel.clearScannedOrders(),
-//                               child: const Text('Effacer tout'),
-//                             ),
-//                         ],
-//                       ),
-//                     ),
-//                     Expanded(
-//                       child: orderViewModel.scannedOrders.isEmpty
-//                           ? const Center(
-//                               child: Column(
-//                                 mainAxisAlignment: MainAxisAlignment.center,
-//                                 children: [
-//                                   Icon(
-//                                     Icons.qr_code,
-//                                     size: 64,
-//                                     color: Colors.grey,
-//                                   ),
-//                                   SizedBox(height: 16),
-//                                   Text(
-//                                     'Aucune commande scannée',
-//                                     style: TextStyle(fontSize: 16),
-//                                   ),
-//                                 ],
-//                               ),
-//                             )
-//                           : ListView.builder(
-//                               padding: const EdgeInsets.symmetric(horizontal: 16),
-//                               itemCount: orderViewModel.scannedOrders.length,
-//                               itemBuilder: (context, index) {
-//                                 final order = orderViewModel.scannedOrders[index];
-//                                 return Card(
-//                                   margin: const EdgeInsets.only(bottom: 8),
-//                                   child: ListTile(
-//                                     leading: Container(
-//                                       padding: const EdgeInsets.all(8),
-//                                       decoration: BoxDecoration(
-//                                         color: Colors.purple[100],
-//                                         borderRadius: BorderRadius.circular(8),
-//                                       ),
-//                                       child: Icon(
-//                                         Icons.inventory,
-//                                         color: Colors.purple[700],
-//                                       ),
-//                                     ),
-//                                     title: Text(
-//                                       'Commande #${order.orderId}',
-//                                       style: const TextStyle(fontWeight: FontWeight.bold),
-//                                     ),
-//                                     subtitle: Column(
-//                                       crossAxisAlignment: CrossAxisAlignment.start,
-//                                       children: [
-//                                         if (order.barcode != null)
-//                                           Text('Code-barres: ${order.barcode}'),
-//                                         if (order.recipientName != null)
-//                                           Text('Client: ${order.recipientName}'),
-//                                       ],
-//                                     ),
-//                                     trailing: IconButton(
-//                                       icon: const Icon(Icons.delete, color: Colors.red),
-//                                       onPressed: () => orderViewModel.removeScannedOrder(order.orderId),
-//                                     ),
-//                                   ),
-//                                 );
-//                               },
-//                             ),
-//                     ),
-//                   ],
-//                 ),
-//               ),
-
-//               // Submit Button
-//               if (orderViewModel.scannedOrders.isNotEmpty)
-//                 Container(
-//                   width: double.infinity,
-//                   padding: const EdgeInsets.all(16),
-//                   child: ElevatedButton(
-//                     onPressed: orderViewModel.isLoading
-//                         ? null
-//                         : () => _submitScannedOrders(context, orderViewModel),
-//                     style: ElevatedButton.styleFrom(
-//                       backgroundColor: Colors.blue[600],
-//                       foregroundColor: Colors.white,
-//                       padding: const EdgeInsets.symmetric(vertical: 16),
-//                     ),
-//                     child: orderViewModel.isLoading
-//                         ? const Row(
-//                             mainAxisAlignment: MainAxisAlignment.center,
-//                             children: [
-//                               SizedBox(
-//                                 width: 20,
-//                                 height: 20,
-//                                 child: CircularProgressIndicator(
-//                                   strokeWidth: 2,
-//                                   valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-//                                 ),
-//                               ),
-//                               SizedBox(width: 12),
-//                               Text('Soumission en cours...'),
-//                             ],
-//                           )
-//                         : Text('Soumettre ${orderViewModel.scannedOrders.length} commande(s)'),
-//                   ),
-//                 ),
-//             ],
-//           );
-//         },
-//       ),
-//     );
-//   }
-
-//   void _openBarcodeScanner(BuildContext context) {
-//     // TODO: Implement barcode scanner using a package like flutter_barcode_scanner
-//     // For now, we'll show a dialog to simulate scanning
-//     showDialog(
-//       context: context,
-//       builder: (BuildContext context) {
-//         return AlertDialog(
-//           title: const Text('Scanner de code-barres'),
-//           content: const Text('Fonctionnalité de scan à implémenter avec flutter_barcode_scanner'),
-//           actions: [
-//             TextButton(
-//               onPressed: () => Navigator.of(context).pop(),
-//               child: const Text('Fermer'),
-//             ),
-//           ],
-//         );
-//       },
-//     );
-//   }
-
-//   void _scanBarcode(BuildContext context, OrderViewModel orderViewModel) {
-//     final barcode = _barcodeController.text.trim();
-//     if (barcode.isEmpty) {
-//       ScaffoldMessenger.of(context).showSnackBar(
-//         const SnackBar(
-//           content: Text('Veuillez saisir un code-barres'),
-//         ),
-//       );
-//       return;
-//     }
-
-//     orderViewModel.scanOrder(barcode).then((success) {
-//       if (success) {
-//         _barcodeController.clear();
-//       }
-//     });
-//   }
-
-//   void _submitScannedOrders(BuildContext context, OrderViewModel orderViewModel) {
-//     showDialog(
-//       context: context,
-//       builder: (BuildContext context) {
-//         return AlertDialog(
-//           title: const Text('Confirmation'),
-//           content: Text(
-//             'Êtes-vous sûr de vouloir soumettre ${orderViewModel.scannedOrders.length} commande(s) ?',
-//           ),
-//           actions: [
-//             TextButton(
-//               onPressed: () => Navigator.of(context).pop(),
-//               child: const Text('Annuler'),
-//             ),
-//             ElevatedButton(
-//               onPressed: () {
-//                 Navigator.of(context).pop();
-//                 orderViewModel.submitScannedOrders().then((success) {
-//                   if (success) {
-//                     ScaffoldMessenger.of(context).showSnackBar(
-//                       const SnackBar(
-//                         content: Text('Commandes soumises avec succès'),
-//                         backgroundColor: Colors.green,
-//                       ),
-//                     );
-//                   }
-//                 });
-//               },
-//               child: const Text('Confirmer'),
-//             ),
-//           ],
-//         );
-//       },
-//     );
-//   }
-// }

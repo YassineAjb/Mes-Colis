@@ -43,40 +43,41 @@ class OrderViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<bool> scanOrder(String barcode) async {
-    _errorMessage = null;
-    _successMessage = null;
+Future<bool> scanOrder(String barcode) async {
+  _errorMessage = null;
+  _successMessage = null;
+  notifyListeners();
+
+  try {
+    final result = await _orderService.getOrderByBarcode(barcode);
+
+if (result['status'] == 'success' && result['order'] != null) {
+  final orderData = result['order'] as Map<String, dynamic>;
+  final order = Order.fromJson(orderData);
+
+  if (!_scannedOrders.any((o) => o.orderId == order.orderId)) {
+    _scannedOrders.add(order);
+    _successMessage = 'Commande ajoutée avec succès';
     notifyListeners();
-
-    try {
-      final result = await _orderService.getOrderByBarcode(barcode);
-      
-      if (result['status'] == 'success') {
-        final order = result['order'] as Order;
-        
-        // Check if order is already scanned
-        if (!_scannedOrders.any((o) => o.orderId == order.orderId)) {
-          _scannedOrders.add(order);
-          _successMessage = 'Commande ajoutée avec succès';
-          notifyListeners();
-          return true;
-        } else {
-          _errorMessage = 'Cette commande a déjà été scannée';
-          notifyListeners();
-          return false;
-        }
-      } else {
-        _errorMessage = result['message'];
-        notifyListeners();
-        return false;
-      }
-    } catch (e) {
-      _errorMessage = 'Erreur , Veuillez réessayer !';
-      notifyListeners();
-      return false;
-    }
+    return true;
+  } else {
+    _errorMessage = 'Cette commande a déjà été scannée';
+    notifyListeners();
+    return false;
   }
+} else {
+  _errorMessage = result['message'] ?? 'Commande introuvable';
+  notifyListeners();
+  return false;
+}
 
+  } catch (e) {
+    print('Error in scanOrder: $e'); // Keep this for debugging
+    _errorMessage = 'Erreur de traitement des données';
+    notifyListeners();
+    return false;
+  }
+}
   void removeScannedOrder(int orderId) {
     _scannedOrders.removeWhere((order) => order.orderId == orderId);
     notifyListeners();
