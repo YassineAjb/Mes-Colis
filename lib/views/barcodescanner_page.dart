@@ -90,140 +90,142 @@ class _BarcodeScannerPageState extends State<BarcodeScannerPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
-        title: const Text('Scanner le code-barres'),
+    return SafeArea(
+      child: Scaffold(
         backgroundColor: Colors.black,
-        foregroundColor: Colors.white,
-        iconTheme: const IconThemeData(color: Colors.white),
-        actions: [
-          // Flash toggle button
-          IconButton(
-            icon: const Icon(Icons.flash_on, color: Colors.white),
-            onPressed: _toggleFlash,
-          ),
-          // Camera switch button
-          IconButton(
-            icon: const Icon(Icons.flip_camera_ios, color: Colors.white),
-            onPressed: _switchCamera,
-          ),
-        ],
-      ),
-      body: Stack(
-        children: [
-          // Camera preview or error message
-          if (errorMessage != null)
-            Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(
-                    Icons.camera_alt_outlined,
-                    size: 64,
-                    color: Colors.white54,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    errorMessage!,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        errorMessage = null;
-                      });
-                      _checkCameraPermission();
-                    },
-                    child: const Text('Réessayer'),
-                  ),
-                ],
-              ),
-            )
-          else
-            MobileScanner(
-              onDetect: _onBarcodeDetect,
+        appBar: AppBar(
+          title: const Text('Scanner le code-barres'),
+          backgroundColor: Colors.black,
+          foregroundColor: Colors.white,
+          iconTheme: const IconThemeData(color: Colors.white),
+          actions: [
+            // Flash toggle button
+            IconButton(
+              icon: const Icon(Icons.flash_on, color: Colors.white),
+              onPressed: _toggleFlash,
             ),
-
-          // Scanner overlay
-          if (errorMessage == null)
-            Container(
-              decoration: ShapeDecoration(
-                shape: QrScannerOverlayShape(
-                  borderColor: Colors.purple,
-                  borderRadius: 12,
-                  borderLength: 30,
-                  borderWidth: 4,
-                  cutOutSize: 250,
+            // Camera switch button
+            IconButton(
+              icon: const Icon(Icons.flip_camera_ios, color: Colors.white),
+              onPressed: _switchCamera,
+            ),
+          ],
+        ),
+        body: Stack(
+          children: [
+            // Camera preview or error message
+            if (errorMessage != null)
+              Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.camera_alt_outlined,
+                      size: 64,
+                      color: Colors.white54,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      errorMessage!,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          errorMessage = null;
+                        });
+                        _checkCameraPermission();
+                      },
+                      child: const Text('Réessayer'),
+                    ),
+                  ],
+                ),
+              )
+            else
+              MobileScanner(
+                onDetect: _onBarcodeDetect,
+              ),
+      
+            // Scanner overlay
+            if (errorMessage == null)
+              Container(
+                decoration: ShapeDecoration(
+                  shape: QrScannerOverlayShape(
+                    borderColor: Colors.purple,
+                    borderRadius: 12,
+                    borderLength: 30,
+                    borderWidth: 4,
+                    cutOutSize: 250,
+                  ),
+                ),
+              ),
+      
+            // Instructions
+            Positioned(
+              bottom: 100,
+              left: 0,
+              right: 0,
+              child: Container(
+                margin: const EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.8),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.purple.withOpacity(0.3)),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text(
+                      'Placez le code-barres dans le cadre pour le scanner',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Assurez-vous que le code est bien éclairé et net',
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.7),
+                        fontSize: 14,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
                 ),
               ),
             ),
-
-          // Instructions
-          Positioned(
-            bottom: 100,
-            left: 0,
-            right: 0,
-            child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: 20),
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.8),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.purple.withOpacity(0.3)),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Text(
-                    'Placez le code-barres dans le cadre pour le scanner',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                    ),
-                    textAlign: TextAlign.center,
+      
+            // Manual input button
+            Positioned(
+              bottom: 20,
+              left: 0,
+              right: 0,
+              child: Center(
+                child: TextButton.icon(
+                  onPressed: () => _showManualInputDialog(),
+                  icon: const Icon(Icons.keyboard, color: Colors.white),
+                  label: const Text(
+                    'Saisir manuellement',
+                    style: TextStyle(color: Colors.white),
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Assurez-vous que le code est bien éclairé et net',
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.7),
-                      fontSize: 14,
-                    ),
-                    textAlign: TextAlign.center,
+                  style: TextButton.styleFrom(
+                    backgroundColor: Colors.purple.withOpacity(0.3),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   ),
-                ],
-              ),
-            ),
-          ),
-
-          // Manual input button
-          Positioned(
-            bottom: 20,
-            left: 0,
-            right: 0,
-            child: Center(
-              child: TextButton.icon(
-                onPressed: () => _showManualInputDialog(),
-                icon: const Icon(Icons.keyboard, color: Colors.white),
-                label: const Text(
-                  'Saisir manuellement',
-                  style: TextStyle(color: Colors.white),
-                ),
-                style: TextButton.styleFrom(
-                  backgroundColor: Colors.purple.withOpacity(0.3),
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
