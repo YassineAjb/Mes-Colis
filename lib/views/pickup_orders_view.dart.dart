@@ -326,8 +326,8 @@ class _PickupOrdersViewState extends State<PickupOrdersView> {
                                           if (order.barcode != null)
                                             _buildDetailChip('Code-barres', order.barcode!),
                                           const SizedBox(height: 4),
-                                          if (order.recipientName != null)
-                                            _buildDetailChip('Client', order.recipientName!),
+                                          if (order.clientName != null)
+                                            _buildDetailChip('Client', order.clientName!),
                                           if (order.address != null)
                                             _buildDetailChip('Adresse', order.address!),
                                         ],

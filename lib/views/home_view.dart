@@ -108,10 +108,7 @@ class HomeView extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Expanded(
-              child: GridView.count(
-                crossAxisCount: 2,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
+              child: ListView(
                 children: [
                   _buildMenuCard(
                     context,
@@ -149,20 +146,6 @@ class HomeView extends StatelessWidget {
                       ),
                     ),
                   ),
-                  _buildMenuCard(
-                    context,
-                    'Statistiques',
-                    Icons.analytics,
-                    Colors.red,
-                    () {
-                      // TODO: Implement statistics view
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Statistiques - À venir'),
-                        ),
-                      );
-                    },
-                  ),
                 ],
               ),
             ),
@@ -172,43 +155,44 @@ class HomeView extends StatelessWidget {
     );
   }
 
-  Widget _buildMenuCard(
-    BuildContext context,
-    String title,
-    IconData icon,
-    Color color,
-    VoidCallback onTap,
-  ) {
-    return Card(
-      elevation: 4,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(8),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                icon,
-                size: 48,
-                color: color,
-              ),
-              const SizedBox(height: 12),
-              Text(
+Widget _buildMenuCard(
+  BuildContext context,
+  String title,
+  IconData icon,
+  Color color,
+  VoidCallback onTap,
+) {
+  return Card(
+    elevation: 4,
+    margin: const EdgeInsets.symmetric(vertical: 8), // spacing between cards
+    child: InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Row(
+          children: [
+            Icon(
+              icon,
+              size: 48,
+              color: color,
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Text(
                 title,
-                textAlign: TextAlign.center,
                 style: const TextStyle(
-                  fontSize: 16,
+                  fontSize: 18,
                   fontWeight: FontWeight.w600,
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   void _showLogoutDialog(BuildContext context, AuthViewModel authViewModel) {
     showDialog(

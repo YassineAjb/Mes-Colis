@@ -416,9 +416,9 @@ class _RunsheetsViewState extends State<RunsheetsView> {
               ),
               child: Row(
                 children: [
-                  _buildHeaderCell('Barcode', flex: 2),
+                  //_buildHeaderCell('Barcode', flex: 2),
                   _buildHeaderCell('Car', flex: 2),
-                  _buildHeaderCell('Total Orders', flex: 2),
+                  //_buildHeaderCell('Total Orders', flex: 2),
                   _buildHeaderCell('Date', flex: 2),
                   _buildHeaderCell('Status', flex: 2),
                   _buildHeaderCell('Action', flex: 1),
@@ -477,17 +477,17 @@ class _RunsheetsViewState extends State<RunsheetsView> {
       child: Row(
         children: [
           // Barcode/Runsheet Number
-          Expanded(
-            flex: 2,
-            child: Text(
-              runsheet.barcode ?? runsheet.runsheetNumber ?? 'N/A',
-              style: TextStyle(
-                fontWeight: FontWeight.w500,
-                color: Colors.grey[800],
-                fontSize: 14,
-              ),
-            ),
-          ),
+          // Expanded(
+          //   flex: 2,
+          //   child: Text(
+          //     runsheet.barcode ?? runsheet.runsheetNumber ?? 'N/A',
+          //     style: TextStyle(
+          //       fontWeight: FontWeight.w500,
+          //       color: Colors.grey[800],
+          //       fontSize: 14,
+          //     ),
+          //   ),
+          // ),
           
           // Car (Registration Number or Car Name)
           Expanded(
@@ -502,16 +502,16 @@ class _RunsheetsViewState extends State<RunsheetsView> {
           ),
           
           // Total Orders
-          Expanded(
-            flex: 2,
-            child: Text(
-              '${runsheet.ordersCount ?? 0}',
-              style: TextStyle(
-                color: Colors.grey[700],
-                fontSize: 14,
-              ),
-            ),
-          ),
+          // Expanded(
+          //   flex: 1,
+          //   child: Text(
+          //     '${runsheet.ordersCount ?? 0}',
+          //     style: TextStyle(
+          //       color: Colors.grey[700],
+          //       fontSize: 14,
+          //     ),
+          //   ),
+          // ),
           
           // Date
           Expanded(
@@ -710,324 +710,3 @@ class _RunsheetsViewState extends State<RunsheetsView> {
     );
   }
 }
-
-
-
-
-
-
-
-
-
-//--OLD
-
-// // lib/views/runsheets_view.dart
-// import 'package:flutter/material.dart';
-// import 'package:mescolis/viewmodels/dashboard_viewmodel.dart';
-// import 'package:provider/provider.dart';
-
-// class RunsheetsView extends StatefulWidget {
-//   const RunsheetsView({Key? key}) : super(key: key);
-
-//   @override
-//   State<RunsheetsView> createState() => _RunsheetsViewState();
-// }
-
-// class _RunsheetsViewState extends State<RunsheetsView> {
-//   final ScrollController _scrollController = ScrollController();
-
-// @override
-// void initState() {
-//   super.initState();
-//   WidgetsBinding.instance.addPostFrameCallback((_) async {
-//     final viewModel = context.read<RunsheetViewModel>();
-//     await viewModel.fetchCars();
-//     viewModel.fetchRunsheets(refresh: true);
-//   });
-
-//   _scrollController.addListener(_onScroll);
-// }
-
-//   void _onScroll() {
-//     if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent * 0.8) {
-//       context.read<RunsheetViewModel>().fetchRunsheets();
-//     }
-//   }
-
-//   @override
-//   void dispose() {
-//     _scrollController.dispose();
-//     super.dispose();
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: const Text('Liste des tournées'),
-//         backgroundColor: Colors.green[600],
-//         foregroundColor: Colors.white,
-//         actions: [
-//           IconButton(
-//             icon: const Icon(Icons.filter_alt),
-//             onPressed: () => _showFilterDialog(context),
-//           ),
-//           IconButton(
-//             icon: const Icon(Icons.refresh),
-//             onPressed: () => context.read<RunsheetViewModel>().fetchRunsheets(refresh: true),
-//           ),
-//         ],
-//       ),
-//       body: Consumer<RunsheetViewModel>(
-//         builder: (context, runsheetViewModel, child) {
-//           if (runsheetViewModel.isLoading && runsheetViewModel.runsheets.isEmpty) {
-//             return const Center(child: CircularProgressIndicator());
-//           }
-
-//           if (runsheetViewModel.errorMessage != null) {
-//             print("Debug016 ${runsheetViewModel.errorMessage }");
-//             return Center(
-//               child: Column(
-//                 mainAxisAlignment: MainAxisAlignment.center,
-//                 children: [
-//                   Icon(
-//                     Icons.error_outline,
-//                     size: 64,
-//                     color: Colors.red[400],
-//                   ),
-//                   const SizedBox(height: 16),
-//                   Text(
-//                     runsheetViewModel.errorMessage!,
-//                     style: const TextStyle(fontSize: 16),
-//                     textAlign: TextAlign.center,
-//                   ),
-//                   const SizedBox(height: 16),
-//                   ElevatedButton(
-//                     onPressed: () => runsheetViewModel.fetchRunsheets(refresh: true),
-//                     child: const Text('Réessayer'),
-//                   ),
-//                 ],
-//               ),
-//             );
-//           }
-
-//           if (runsheetViewModel.runsheets.isEmpty) {
-//             return const Center(
-//               child: Column(
-//                 mainAxisAlignment: MainAxisAlignment.center,
-//                 children: [
-//                   Icon(
-//                     Icons.assignment,
-//                     size: 64,
-//                     color: Colors.grey,
-//                   ),
-//                   SizedBox(height: 16),
-//                   Text(
-//                     'Aucune tournée trouvée',
-//                     style: TextStyle(fontSize: 16),
-//                   ),
-//                 ],
-//               ),
-//             );
-//           }
-
-//           return RefreshIndicator(
-//             onRefresh: () => runsheetViewModel.fetchRunsheets(refresh: true),
-//             child: ListView.builder(
-//               controller: _scrollController,
-//               padding: const EdgeInsets.all(16),
-//               itemCount: runsheetViewModel.runsheets.length + 1,
-//               itemBuilder: (context, index) {
-//                 if (index == runsheetViewModel.runsheets.length) {
-//                   return runsheetViewModel.isLoading
-//                       ? const Center(
-//                           child: Padding(
-//                             padding: EdgeInsets.all(16.0),
-//                             child: CircularProgressIndicator(),
-//                           ),
-//                         )
-//                       : const SizedBox.shrink();
-//                 }
-
-//                 final runsheet = runsheetViewModel.runsheets[index];
-//                 return Card(
-//                   margin: const EdgeInsets.only(bottom: 12),
-//                   child: ListTile(
-//                     leading: Container(
-//                       padding: const EdgeInsets.all(8),
-//                       decoration: BoxDecoration(
-//                         color: Colors.green[100],
-//                         borderRadius: BorderRadius.circular(8),
-//                       ),
-//                       child: Icon(
-//                         Icons.route,
-//                         color: Colors.green[700],
-//                       ),
-//                     ),
-//                     title: Text(
-//                       'Tournée #${runsheet.runsheetNumber ?? runsheet.runsheetId}',
-//                       style: const TextStyle(fontWeight: FontWeight.bold),
-//                     ),
-//                     subtitle: Column(
-//                       crossAxisAlignment: CrossAxisAlignment.start,
-//                       children: [
-//                         if (runsheet.carName != null)
-//                           Text('Véhicule: ${runsheet.carName}'),
-//                         if (runsheet.date != null)
-//                           Text('Date: ${runsheet.date}'),
-//                         if (runsheet.ordersCount != null)
-//                           Text('Commandes: ${runsheet.ordersCount}'),
-//                         if (runsheet.status != null)
-//                           Chip(
-//                             label: Text(runsheet.status!),
-//                             backgroundColor: Colors.green[100],
-//                           ),
-//                       ],
-//                     ),
-//                     trailing: const Icon(Icons.chevron_right),
-//                     onTap: () {
-//                       _showRunsheetDetails(context, runsheet);
-//                     },
-//                   ),
-//                 );
-//               },
-//             ),
-//           );
-//         },
-//       ),
-//     );
-//   }
-
-//   void _showFilterDialog(BuildContext context) {
-//     final viewModel = context.read<RunsheetViewModel>();
-    
-//     showDialog(
-//       context: context,
-//       builder: (BuildContext context) {
-//         return AlertDialog(
-//           title: const Text('Filtres'),
-//           content: Column(
-//             mainAxisSize: MainAxisSize.min,
-//             children: [
-//               if (viewModel.cars.isNotEmpty)
-//                 DropdownButtonFormField<int>(
-//                   value: viewModel.selectedCarId,
-//                   decoration: const InputDecoration(
-//                     labelText: 'Véhicule',
-//                     border: OutlineInputBorder(),
-//                   ),
-//                   items: [
-//                     const DropdownMenuItem<int>(
-//                       value: null,
-//                       child: Text('Tous les véhicules'),
-//                     ),
-//                     ...viewModel.cars.map((car) => DropdownMenuItem<int>(
-//                       value: car.carId,
-//                       child: Text(car.carName ?? 'Véhicule #${car.carId}'),
-//                     )),
-//                   ],
-//                   onChanged: (value) {
-//                     // Store the selection temporarily
-//                   },
-//                 ),
-//               const SizedBox(height: 16),
-//               TextFormField(
-//                 decoration: const InputDecoration(
-//                   labelText: 'Date de début (YYYY-MM-DD)',
-//                   border: OutlineInputBorder(),
-//                 ),
-//                 initialValue: viewModel.fromDate,
-//                 onChanged: (value) {
-//                   // Store the selection temporarily
-//                 },
-//               ),
-//               const SizedBox(height: 16),
-//               TextFormField(
-//                 decoration: const InputDecoration(
-//                   labelText: 'Date de fin (YYYY-MM-DD)',
-//                   border: OutlineInputBorder(),
-//                 ),
-//                 initialValue: viewModel.toDate,
-//                 onChanged: (value) {
-//                   // Store the selection temporarily
-//                 },
-//               ),
-//             ],
-//           ),
-//           actions: [
-//             TextButton(
-//               onPressed: () {
-//                 Navigator.of(context).pop();
-//                 viewModel.clearFilters();
-//               },
-//               child: const Text('Effacer'),
-//             ),
-//             TextButton(
-//               onPressed: () => Navigator.of(context).pop(),
-//               child: const Text('Annuler'),
-//             ),
-//             ElevatedButton(
-//               onPressed: () {
-//                 Navigator.of(context).pop();
-//                 // Apply filters - in a real implementation, you'd collect the values from the form
-//                 // viewModel.setFilters(carId: selectedCarId, fromDate: fromDate, toDate: toDate);
-//               },
-//               child: const Text('Appliquer'),
-//             ),
-//           ],
-//         );
-//       },
-//     );
-//   }
-
-//   void _showRunsheetDetails(BuildContext context, runsheet) {
-//     showDialog(
-//       context: context,
-//       builder: (BuildContext context) {
-//         return AlertDialog(
-//           title: Text('Tournée #${runsheet.runsheetNumber ?? runsheet.runsheetId}'),
-//           content: SingleChildScrollView(
-//             child: Column(
-//               crossAxisAlignment: CrossAxisAlignment.start,
-//               mainAxisSize: MainAxisSize.min,
-//               children: [
-//                 if (runsheet.runsheetNumber != null) _buildDetailRow('Numéro', runsheet.runsheetNumber!),
-//                 if (runsheet.carName != null) _buildDetailRow('Véhicule', runsheet.carName!),
-//                 if (runsheet.deliverymanName != null) _buildDetailRow('Livreur', runsheet.deliverymanName!),
-//                 if (runsheet.date != null) _buildDetailRow('Date', runsheet.date!),
-//                 if (runsheet.status != null) _buildDetailRow('Statut', runsheet.status!),
-//                 if (runsheet.ordersCount != null) _buildDetailRow('Nb Commandes', runsheet.ordersCount.toString()),
-//               ],
-//             ),
-//           ),
-//           actions: [
-//             TextButton(
-//               onPressed: () => Navigator.of(context).pop(),
-//               child: const Text('Fermer'),
-//             ),
-//           ],
-//         );
-//       },
-//     );
-//   }
-
-//   Widget _buildDetailRow(String label, String value) {
-//     return Padding(
-//       padding: const EdgeInsets.only(bottom: 8.0),
-//       child: Row(
-//         crossAxisAlignment: CrossAxisAlignment.start,
-//         children: [
-//           SizedBox(
-//             width: 100,
-//             child: Text(
-//               '$label:',
-//               style: const TextStyle(fontWeight: FontWeight.bold),
-//             ),
-//           ),
-//           Expanded(child: Text(value)),
-//         ],
-//       ),
-//     );
-//   }
-// }
-

@@ -73,11 +73,11 @@ flutter_native_splash:
 
   branding_bottom_padding_ios: 35
 
-  color_dark: "#332828"
+  color_dark: "#FFFFFF"
 
   android_12:
     color: "#FFFFFF"
-    color_dark: "#332828"
+    color_dark: "#FFFFFF"
     image: assets/logo.png
     branding: assets/branding.png
     

@@ -33,6 +33,9 @@ class OrderViewModel extends ChangeNotifier {
       
       if (result['status'] == 'success') {
         _orders = result['orders'] as List<Order>;
+        // print("Debug569 : $_orders. ");
+        print("Debug569 : ${_orders.map((order) => order.status).toList()}");
+
       } else {
         _errorMessage = result['message'];
       }
