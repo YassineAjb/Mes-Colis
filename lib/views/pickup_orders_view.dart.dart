@@ -84,7 +84,7 @@ class _PickupOrdersViewState extends State<PickupOrdersView> {
                           focusNode: _barcodeFocusNode,
                           autofocus: true,
                           decoration: InputDecoration(
-                            labelText: 'Code-barres',
+                            //labelText: 'Code-barres',
                             hintText: 'Scannez ou saisissez le code-barres',
                             prefixIcon: Icon(Icons.qr_code, color: Colors.purple[600]),
                             border: OutlineInputBorder(
@@ -246,7 +246,7 @@ class _PickupOrdersViewState extends State<PickupOrdersView> {
                           ],
                         ),
                       ),
-                      Expanded(
+                    /*  Expanded(
                         child: orderViewModel.scannedOrders.isEmpty
                             ? Center(
                                 child: Column(
@@ -348,6 +348,113 @@ class _PickupOrdersViewState extends State<PickupOrdersView> {
                                 },
                               ),
                       ),
+                    */
+Expanded(
+  child: orderViewModel.scannedOrders.isEmpty
+      ? SingleChildScrollView( // Add SingleChildScrollView to prevent overflow
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(24), // Add padding to prevent edge cases
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[100],
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.qr_code_2,
+                    size: 64,
+                    color: Colors.grey[400],
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  'Aucune commande scannée',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.grey[600],
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Commencez par scanner ou saisir un code-barres',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey[500],
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
+        )
+      : ListView.builder(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          itemCount: orderViewModel.scannedOrders.length,
+          itemBuilder: (context, index) {
+            final order = orderViewModel.scannedOrders[index];
+            return Card(
+              margin: const EdgeInsets.only(bottom: 12),
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: ListTile(
+                contentPadding: const EdgeInsets.all(16),
+                leading: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [Colors.purple[100]!, Colors.purple[200]!],
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(
+                    Icons.inventory_2,
+                    color: Colors.purple[700],
+                    size: 24,
+                  ),
+                ),
+                title: Text(
+                  'Commande #${order.orderId}',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 4),
+                    if (order.barcode != null)
+                      _buildDetailChip('Code-barres', order.barcode!),
+                    const SizedBox(height: 4),
+                    if (order.clientName != null)
+                      _buildDetailChip('Client', order.clientName!),
+                    if (order.address != null)
+                      _buildDetailChip('Adresse', order.address!),
+                  ],
+                ),
+                trailing: IconButton(
+                  icon: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.red[50],
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Icon(Icons.delete_outline, color: Colors.red[600], size: 20),
+                  ),
+                  onPressed: () => _showRemoveOrderDialog(context, orderViewModel, order),
+                ),
+              ),
+            );
+          },
+        ),
+),
                     ],
                   ),
                 ),

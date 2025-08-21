@@ -68,7 +68,7 @@ flutter_native_splash:
   ios: true
 
   color: "#FFFFFF"
-  image: assets/logo.png
+  image: assets/logoSplash.png
   branding: assets/branding.png
 
   branding_bottom_padding_ios: 35
@@ -78,7 +78,7 @@ flutter_native_splash:
   android_12:
     color: "#FFFFFF"
     color_dark: "#FFFFFF"
-    image: assets/logo.png
+    image: assets/logoSplash.png
     branding: assets/branding.png
     
 # For information on the generic Dart part of this file, see the

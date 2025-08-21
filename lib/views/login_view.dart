@@ -34,25 +34,26 @@ class _LoginViewState extends State<LoginView> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Logo
                 Container(
-                  width: 120,
-                  height: 120,
+                  width: 140,
+                  height: 140,
                   decoration: BoxDecoration(
-                    color: Colors.blue[600],
+                    //color: Colors.blue[600],
                     borderRadius: BorderRadius.circular(60),
                   ),
-                  child: const Icon(
-                    Icons.local_shipping,
-                    size: 60,
-                    color: Colors.white,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(60), // keep it circular
+                    child: Image.asset(
+                      'assets/logo.png',   
+                      fit: BoxFit.cover,   // cover to fill the container
+                    ),
                   ),
                 ),
                 const SizedBox(height: 32),
                 
                 // Title
                 Text(
-                  'MesColis',
+                  'Mes Colis',
                   style: TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
