@@ -38,26 +38,54 @@ class RunsheetViewModel extends ChangeNotifier {
   String? get toDate => _toDate;
   String? get searchQuery => _searchQuery;
 
+  // Future<void> fetchCars() async {
+  //   _isLoadingCars = true;
+  //   _errorMessage = null;
+  //   notifyListeners();
+
+  //   try {
+  //     final result = await _carService.getCars();
+      
+  //     if (result['status'] == 'success') {
+  //       _cars = result['cars'] as List<Car>;
+  //     } else {
+  //       _errorMessage = result['message'];
+  //     }
+  //   } catch (e) {
+  //     _errorMessage = 'Error loading cars. Please try again.';
+  //     print("Error fetching cars: $e");
+  //   }
+
+  //   _isLoadingCars = false;
+  //   notifyListeners();
+  // }
   Future<void> fetchCars() async {
     _isLoadingCars = true;
-    _errorMessage = null;
     notifyListeners();
 
     try {
-      final result = await _carService.getCars();
+      final response = await _carService.getCars();
       
-      if (result['status'] == 'success') {
-        _cars = result['cars'] as List<Car>;
+      if (response['status'] == 'success') {
+        _cars = response['cars'] ?? [];
+        print('Cars loaded in ViewModel: ${_cars.length}');
+        
+        // Debug: Print each car
+        for (var car in _cars) {
+          print('Car: ${car.carId} - ${car.registrationNumber}');
+        }
       } else {
-        _errorMessage = result['message'];
+        print('Error fetching cars: ${response['message']}');
+        _cars = [];
+        // You might want to set an error state here
       }
     } catch (e) {
-      _errorMessage = 'Error loading cars. Please try again.';
-      print("Error fetching cars: $e");
+      print('Exception in fetchCars: $e');
+      _cars = [];
+    } finally {
+      _isLoadingCars = false;
+      notifyListeners(); // This is crucial!
     }
-
-    _isLoadingCars = false;
-    notifyListeners();
   }
 
   Future<void> fetchRunsheets({bool refresh = false}) async {

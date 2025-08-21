@@ -17,7 +17,7 @@ class _RunsheetsViewState extends State<RunsheetsView> {
   final TextEditingController _toDateController = TextEditingController();
   int? _selectedCarId;
   bool _showFilters = false;
-
+  /*
   @override
   void initState() {
     super.initState();
@@ -29,6 +29,32 @@ class _RunsheetsViewState extends State<RunsheetsView> {
 
     _scrollController.addListener(_onScroll);
   }
+  */
+  @override
+void initState() {
+  super.initState();
+  WidgetsBinding.instance.addPostFrameCallback((_) async {
+    final viewModel = context.read<RunsheetViewModel>();
+    
+    try {
+      // Make sure cars are fetched first
+      await viewModel.fetchCars();
+      print('Cars fetched: ${viewModel.cars.length}'); // Debug line
+      
+      // Then fetch runsheets
+      await viewModel.fetchRunsheets(refresh: true);
+      
+      // Force UI update
+      if (mounted) {
+        setState(() {});
+      }
+    } catch (e) {
+      print('Error during initialization: $e'); // Debug line
+    }
+  });
+
+  _scrollController.addListener(_onScroll);
+}
 
   void _onScroll() {
     if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent * 0.8) {
