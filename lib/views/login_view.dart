@@ -26,7 +26,7 @@ class _LoginViewState extends State<LoginView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.blue[50],
+      backgroundColor: Colors.teal[50],
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -57,7 +57,7 @@ class _LoginViewState extends State<LoginView> {
                   style: TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
-                    color: Colors.blue[800],
+                    color: Colors.teal[800],
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -65,7 +65,7 @@ class _LoginViewState extends State<LoginView> {
                   'Application Livreur',
                   style: TextStyle(
                     fontSize: 16,
-                    color: Colors.blue[600],
+                    color: Colors.teal[600],
                   ),
                 ),
                 const SizedBox(height: 48),
@@ -87,7 +87,7 @@ class _LoginViewState extends State<LoginView> {
                               style: TextStyle(
                                 fontSize: 24,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.blue[800],
+                                color: Colors.teal[800],
                               ),
                               textAlign: TextAlign.center,
                             ),
@@ -176,7 +176,7 @@ class _LoginViewState extends State<LoginView> {
                                       ? null
                                       : () => _handleLogin(context),
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.blue[600],
+                                    backgroundColor: Colors.teal[600],
                                     foregroundColor: Colors.white,
                                     padding: const EdgeInsets.symmetric(vertical: 16),
                                   ),
