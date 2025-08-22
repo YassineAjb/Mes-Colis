@@ -14,7 +14,7 @@ class HomeView extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('MesColis Dashboard'),
-        backgroundColor: Colors.blue[600],
+        backgroundColor: Color(0xFF3b6c7b),
         foregroundColor: Colors.white,
         actions: [
           Consumer<AuthViewModel>(
@@ -58,7 +58,7 @@ class HomeView extends StatelessWidget {
                       children: [
                         const CircleAvatar(
                           radius: 30,
-                          backgroundColor: Colors.blue,
+                          backgroundColor:Color(0xFF61cdab),
                           child: Icon(
                             Icons.person,
                             color: Colors.white,
@@ -71,20 +71,14 @@ class HomeView extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Bienvenue, ${user?.first_name ?? 'Utilisateur'}',
+                                'Bienvenue, ${user?.firstName ?? 'Utilisateur'}',
                                 style: const TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
                               Text(
-                                'Email: ${user?.email ?? 'Not Found !!'}',
-                                style: TextStyle(
-                                  color: Colors.grey[600],
-                                ),
-                              ),
-                              Text(
-                                'ID Agence: ${user?.agencyId ?? 'N/A'}',
+                                'Agency: ${user!.agency?.name ?? 'Not Found !!'}',
                                 style: TextStyle(
                                   color: Colors.grey[600],
                                 ),
@@ -114,7 +108,7 @@ class HomeView extends StatelessWidget {
                     context,
                     'Commandes en cours',
                     Icons.inventory,
-                    Colors.orange,
+                    Colors.teal[600]!, 
                     () => Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -126,7 +120,7 @@ class HomeView extends StatelessWidget {
                     context,
                     'Liste des tournées',
                     Icons.list_alt,
-                    Colors.green,
+                    Colors.teal[500]!, 
                     () => Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -138,7 +132,7 @@ class HomeView extends StatelessWidget {
                     context,
                     'Ramassage commandes',
                     Icons.qr_code_scanner,
-                    Colors.purple,
+                    Colors.teal[400]!, 
                     () => Navigator.push(
                       context,
                       MaterialPageRoute(

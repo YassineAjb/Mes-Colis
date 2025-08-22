@@ -74,29 +74,29 @@ void initState() {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: Colors.teal[50],
       appBar: AppBar(
         title: const Text('Liste des tournées', style: TextStyle(fontWeight: FontWeight.w600)),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.grey[800],
+        backgroundColor:Color(0xFF3b6c7b),
+        foregroundColor:Colors.white, 
         elevation: 0,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
           child: Container(
             height: 1,
-            color: Colors.grey[200],
+            color: Colors.teal[200],
           ),
         ),
         actions: [
           IconButton(
             icon: Icon(
               _showFilters ? Icons.filter_alt : Icons.filter_alt_outlined,
-              color: _showFilters ? Colors.green[600] : Colors.grey[600],
+              color: _showFilters ? Colors.teal[200] : Colors.teal[50],
             ),
             onPressed: () => setState(() => _showFilters = !_showFilters),
           ),
           IconButton(
-            icon: Icon(Icons.refresh, color: Colors.grey[600]),
+            icon: Icon(Icons.refresh, color: Colors.teal[50]),
             onPressed: () => _refreshData(),
           ),
         ],
@@ -258,7 +258,7 @@ void initState() {
                   icon: const Icon(Icons.search, size: 18),
                   label: const Text('Search'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green[600],
+                    backgroundColor: Colors.teal[600],
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(
@@ -274,8 +274,8 @@ void initState() {
                   icon: const Icon(Icons.refresh, size: 18),
                   label: const Text('Reset'),
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.red[600],
-                    side: BorderSide(color: Colors.red[300]!),
+                    foregroundColor: Colors.red[400],
+                    side: BorderSide(color: Colors.red[400]!),
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
@@ -656,7 +656,7 @@ void initState() {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           title: Row(
             children: [
-              Icon(Icons.assignment, color: Colors.green[600], size: 24),
+              Icon(Icons.assignment, color: Colors.teal[600], size: 24),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
